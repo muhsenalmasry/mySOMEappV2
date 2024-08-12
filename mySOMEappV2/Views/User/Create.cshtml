@@ -1,0 +1,66 @@
+﻿@model mySOMEappV2.Models.User
+
+@{
+	ViewData["Title"] = "Create";
+}
+
+<link rel="stylesheet" href="/css/Create.css" />
+
+<form asp-action="Create" enctype="multipart/form-data" class="codehim-form">
+	<div class="form-title">
+        <div class="user-icon gr-bg">
+            <i class="fade fa-user"></i>
+        </div>
+        <h2>Sign up</h2>
+    </div>
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div class="form-group">
+		<label asp-for="FirstName" class="control-label fa fa-envelope"></label>
+		<input asp-for="FirstName" class="form-control cm-input" />
+		<span asp-validation-for="FirstName" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="LastName" class="control-label fa fa-envelope"></label>
+		<input asp-for="LastName" class="form-control cm-input"/>
+		<span asp-validation-for="LastName" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="Email" class="control-label fa fa-envelope"></label>
+		<input asp-for="Email" class="form-control cm-input" />
+		<span asp-validation-for="Email" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="Password" class="control-label fa fa-envelope"></label>
+		<input asp-for="Password" type="password" class="form-control cm-input"/>
+		<span asp-validation-for="Password" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="Birthday" class="control-label fa fa-envelope"></label>
+		<input asp-for="Birthday" type="date" class="form-control cm-input"/>
+		<span asp-validation-for="Birthday" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="ProfilePic" class="control-label fa fa-envelope"></label>
+		<input asp-for="ProfilePic" type="file" class="form-control cm-input" />
+		<span asp-validation-for="ProfilePic" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="ProfileCover" class="control-label fa fa-envelope"></label>
+		<input asp-for="ProfileCover" type="file" class="form-control cm-input" />
+		<span asp-validation-for="ProfileCover" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<input type="submit" value="Create" class="btn btn-primary btn-login gr-bg" />
+	</div>
+</form>
+
+
+<div style="margin-left: 32%;">
+	<a>Back to @Html.ActionLink("Login", "Login")</a>
+</div>
+
+@section Scripts {
+    @{
+	await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

@@ -1,0 +1,40 @@
+﻿@model mySOMEappV2.Models.User
+
+@{
+	ViewData["Title"] = "Login";
+}
+
+<link rel="stylesheet" href="~/css/Login.css" />
+
+
+<form asp-action="Login" class="codehim-form">
+	<div class="form-title">
+		<div class="user-icon gr-bg">
+			<i class="fa fa-user"></i>
+		</div>
+		<h2>Login</h2>
+	</div>
+	<div class="form-group">
+		<label asp-for="Email"><i class="fa fa-envelope"></i>Email:</label>
+		<input asp-for="Email" type="email" class="cm-input" />
+		<span asp-validation-for="Email" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label asp-for="Password"><i class="fa fa-lock"></i>Password:</label>
+		<input asp-for="Password" type="password" class="cm-input" />
+		<span asp-validation-for="Password" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<input type="submit" value="Login" class="btn btn-primary" />
+	</div>
+</form>
+
+<div style="margin-left: 32%;">
+	<a>You don't have an account? Sign up @Html.ActionLink("Here", "Create")</a>
+</div>
+
+@section Scripts {
+    @{
+	await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

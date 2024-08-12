@@ -1,0 +1,112 @@
+﻿@model IEnumerable<mySOMEappV2.Models.Comment>
+@{
+    var postId = ViewBag.PostId;
+    var userId = ViewBag.UserId;
+    var userName = ViewBag.UserName;
+}
+@using mySOMEappV2.Helpers
+<head runat="server">
+</head>
+
+<form class="form-comments codehim-form">
+    <h1 style="position:center;">Comments</h1>
+
+    <hr />
+    <div class="grid-comments-container" id="commentsCont">
+        @foreach (var comment in Model)
+        {
+            <div class="grid-comment-item">
+                <h5 class="commenter">@comment.User.FirstName @comment.User.LastName</h5>
+                <h6 class="commentingTime">@comment.Time</h6>
+                <p class="comment-content">@comment.Content</p>
+            </div>
+        }
+    </div>
+    <input type="text" id="content" placeholder="Enter a comment" class="ct-input" />
+    <input type="number" id="postId" value="@postId" hidden />
+    <input type="number" id="userId" value="@userId" hidden />
+    <input type="text" id="userName" value="@userName" hidden />
+    <button id="sendComment" class="btn-add-cmnt gr-bg">Comment</button>
+    <input type="button" value="Close" class="btn-add-cmnt gr-cl" onclick="hideComments(@postId)" />
+</form>
+
+<!--Reference the SignalR library. -->
+<script src=@Url.Content("https://cdn.jsdelivr.net/npm/@microsoft/signalr@3.1.8/dist/browser/signalr.min.js")></script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        let userId = document.getElementById('userId').value;
+        let userName = document.getElementById('userName').value;
+        let postId = document.getElementById('postId').value;
+        const commentInput = document.getElementById('content');
+        commentInput.focus();
+
+        function createCommentEntry(encodedName, encodedCmnt) {
+            var entry = document.createElement("div");
+            entry.classList.add("grid-comment-item");
+            if (encodedName === "_SYSTEM_") {
+                entry.innerHTML = encodedCmnt;
+                entry.classList.add("text-center");
+                entry.classList.add("system-comment");
+            } else if (encodedName === "_BROADCAST_") {
+                entry.classList.add("text-center");
+                entry.innerHTML = `<div class="text-center broadcast-comment">${encodedCmnt}</div>`;
+            } else {
+                entry.innerHTML = `<h5 class="commenter">${encodedName}</div>` +
+                    `<h6 class="commentingTime">${Date.now()}</h6>` +
+                    `<p class="comment-content">${encodedCmnt}</p>`;
+            }
+            return entry;
+        }
+
+        function bindConnectionComment(connection) {
+            var commentCallback = function (userName, comment) {
+                if (!comment) return;
+                var encodedName = userName;
+                var encodedCmnt = comment.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                var commentEntry = createCommentEntry(encodedName, encodedCmnt);
+
+                var commentBox = document.getElementById('commentsCont');
+                commentBox.appendChild(commentEntry);
+                commentBox.scrollTop = commentBox.scrollHeight;
+            };
+            connection.on('broadcastComment', commentCallback);
+            connection.onclose(onConnectionError);
+        }
+
+        function onConnected(connection) {
+            document.getElementById('sendComment').addEventListener('click', function (event) {
+                if (commentInput.value) {
+                    connection.invoke('broadcastComment', userId+"*+*"+userName+"*+*"+postId, commentInput.value);
+                }
+
+                commentInput.value = '';
+                commentInput.focus();
+                event.preventDefault();
+            });
+            document.getElementById('content').addEventListener('keypress', function (event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    document.getElementById('sendComment').click();
+                    return false;
+                }
+            });
+        }
+
+        function onConnectionError(error) {
+            if (error && error.message) {
+                console.error(error.message);
+            }
+        }
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/comments')
+            .build();
+        bindConnectionComment(connection);
+        connection.start()
+            .then(() => onConnected(connection))
+            .catch(error => console.error(error.message));
+    });
+</script>
+
+

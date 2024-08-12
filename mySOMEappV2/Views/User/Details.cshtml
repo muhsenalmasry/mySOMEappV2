@@ -1,0 +1,180 @@
+﻿@model mySOMEappV2.Models.User
+
+@{
+    ViewData["Title"] = "User Page";
+    var Messages = ViewBag.Messages;
+    var userId = ViewBag.UserId;
+}
+
+<link rel="stylesheet" href="~/css/Details.css" />
+
+@if (Model == null)
+{
+
+
+    <div>
+        404: User not found
+    </div> }
+else
+{
+
+    <div class="main">
+        <div class="profcov">
+            <img src="data:Model.ProfileCover/jpg;base64,@Convert.ToBase64String(Model.ProfileCover)" />
+        </div>
+        <div class="profpic">
+            <img src="data:Model.ProfilePic/jpg;base64,@Convert.ToBase64String(Model.ProfilePic)" />
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="con-child">
+            <form method="post" enctype="multipart/form-data" class="codehim-form">
+                <input type="button" onclick="openForm()" value="Post" class="btn-post gr-bg" />
+            </form>
+
+            <div class="form-popup" id="myForm">
+                <form asp-action="Index" class="form-container codehim-form" enctype="multipart/form-data">
+                    <h1 style="text-align:center;">Create a Post</h1>
+
+                    <hr />
+
+                    <textarea type="text" name="postContent" placeholder="What's on your mind?" class="cm-input cm-pc-input"></textarea>
+
+                    <div class="file-upload">
+                        <button class="file-upload-btn gr-bg" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Add Image</button>
+
+                        <div class="image-upload-wrap">
+                            <input class="file-upload-input" type='file' name="file" onchange="readURL(this);" />
+                            <div class="drag-text">
+                                <h3>Drag and drop a file or select add Image</h3>
+                            </div>
+                        </div>
+                        <div class="file-upload-content">
+                            <img class="file-upload-image" src="#" alt="your image" />
+                            <div class="image-title-wrap">
+                                <button type="button" onclick="removeUpload()" class="remove-image">Remove <span class="image-title">Uploaded Image</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-post gr-bg">Post</button>
+                    <input type="button" class="btn-post gr-cl" onclick="closeForm()" value="Close" />
+                </form>
+            </div>
+
+            <div class="grid-posts-container">
+                @{ foreach (var post in Model.Posts)
+                    {
+                        <div class="grid-post-item">
+                            <h5 class="poster">@Model.FirstName @Model.LastName</h5>
+                            <h6 class="post-timing">@post.Time</h6>
+                            <p class="post-content">@post.Content</p>
+                            @if (post.Media != null)
+                            {
+                                <img class="post-media" src="data:@post.Media/jpg;base64,@Convert.ToBase64String(post.Media)" />
+                            }
+                            @if (post.Likes != 0)
+                            {
+                                <p class="post-likes">@post.Likes person likes this post</p>
+                            }
+                            @using (Html.BeginForm("LikePost", "Home", new { postId = post.Id.ToString() }, FormMethod.Post))
+                            {
+                                <input type="submit" value="Like" class="btn-like-post gr-bg" />
+                            }
+                            <input type="button" value="Comment" class="btn-like-post gr-bg" onclick="showComments(@post.Id.ToString())" />
+
+                            <div class="comments-popup" id="@post.Id.ToString()">
+                                @await Component.InvokeAsync("PostComments", new { postId = post.Id.ToString(), userId = userId })
+                            </div>
+                        </div>
+
+                    }
+                }
+            </div>
+
+        </div>
+        <div class="con-child">
+            <form class="codehim-messages">
+                <input type="button" value="Messages" class="btn-msg gr-bg" onclick="showMessages()" />
+            </form>
+            <div class="messages-popup" id="myMessages">
+                <div class="grid-msg-container">
+                    @foreach (var messagewith in Messages)
+                    {
+                        <div class="grid-msg-item">
+                            <a class="msg-sndr-rcvr" asp-controller="User" asp-action="GetMessagesWith" asp-route-withUser="@messagewith.UserId" asp-route-userId="@userId">@messagewith.FirstName @messagewith.LastName</a>
+                        </div>
+                    }
+                </div>
+                <form class="form-message" asp-action="SendMessage" method="get">
+                    <input type="submit" value="Send A Message" class="btn-msg gr-bg" />
+                </form>
+
+            </div>
+        </div>
+    </div>
+}
+<script>
+
+    function openForm() {
+        document.getElementById("myForm").style.display = "block";
+    }
+
+    function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+    }
+
+    function showComments(postId) {
+        document.getElementById(postId).style.display = "block";
+    }
+
+    function hideComments(postId) {
+        document.getElementById(postId).style.display = "none";
+    }
+
+    function showMessages() {
+        document.getElementById("myMessages").style.display = "block";
+    }
+
+    function closeMessages() {
+        document.getElementById("myMessages").style.display = "none";
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.image-upload-wrap').hide();
+
+                $('.file-upload-image').attr('src', e.target.result);
+                $('.file-upload-content').show();
+
+                $('.image-title').html(input.files[0].name);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+
+        } else {
+            removeUpload();
+        }
+    }
+
+    function removeUpload() {
+        $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+        $('.file-upload-content').hide();
+        $('.image-upload-wrap').show();
+    }
+    $('.image-upload-wrap').bind('dragover', function () {
+        $('.image-upload-wrap').addClass('image-dropping');
+    });
+    $('.image-upload-wrap').bind('dragleave', function () {
+        $('.image-upload-wrap').removeClass('image-dropping');
+    });
+
+
+    Resources
+</script>
+<script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>

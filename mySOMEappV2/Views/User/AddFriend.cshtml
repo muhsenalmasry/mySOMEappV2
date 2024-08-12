@@ -1,0 +1,25 @@
+﻿@model IEnumerable<mySOMEappV2.Models.User>
+
+@{
+    ViewData["Title"] = "AddFriend";
+}
+
+<link rel="stylesheet" href="~/css/AddFriend.css" />
+
+<form method="post" class="codehim-form">
+    <div class="form-title">
+        <div class="user-icon gr-bg">
+            <i class="fa fa-user"></i>
+        </div>
+        <h2>Follow a friend</h2>
+    </div>
+    <label><i class="fa fa-envelope"></i>User's name:</label>
+    <input name="name" class="cm-input" placeholder="User's name" list="@Model"/>
+    <datalist id="@Model">
+        @foreach (var person in Model)
+        {
+            <option value="@person.FirstName @person.LastName"/>
+        }
+    </datalist>
+    <button type="submit" class="btn-login gr-bg">Follow</button>
+</form>

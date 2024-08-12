@@ -1,0 +1,47 @@
+﻿@model IEnumerable<mySOMEappV2.Models.Message>
+@{
+    ViewData["Title"] = "Messages";
+    var userId = ViewBag.UserId;
+    var msgRcvrId = ViewBag.MsgRcvrId;
+}
+
+<link href="~/css/MessagesWith.css" rel="stylesheet" />
+
+<div class="codehim-form">
+    <div class="grid-messages-container">
+        <h1>Chat</h1>
+
+        <hr />
+
+        @foreach (var msg in Model)
+        {
+            if (msg.Sender == userId)
+            {
+                <div class="grid-myMessage-item">
+                    <p class="msg-content">@msg.Content</p>
+                </div>
+            }
+            else
+            {
+                <div class="grid-message-item">
+                    <p class="msg-sender">@msg.SenderNavigation.FirstName @msg.SenderNavigation.LastName</p>
+                    <p class="msg-content">@msg.Content</p>
+                </div>
+            }
+        }
+    </div>
+    <form asp-controller="User"
+          asp-action="SendMessage"
+          method="post">
+
+        <input type="text" name="content" placeholder="Enter a message" class="ct-input" />
+        <input type="number" name="senderId" value="@userId" hidden />
+        <input type="number" name="recieverId" value="@msgRcvrId" hidden />
+        <input type="submit" value="Send" class="btn-send-msg gr-bg" />
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ajax-unobtrusive@3.2.6/dist/jquery.unobtrusive-ajax.min.js"></script>
+}
